@@ -1,10 +1,14 @@
 package com.ips.sdk.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 证件信息
  */
+@Data
+@NoArgsConstructor
 public class CardInfo {
     
     /**
@@ -15,29 +19,4 @@ public class CardInfo {
     
     @JsonProperty("confidence")
     private Double confidence;
-    
-    // Getters and Setters
-    public Integer getCardType() {
-        return cardType;
-    }
-    
-    public void setCardType(Integer cardType) {
-        this.cardType = cardType;
-    }
-    
-    public Double getConfidence() {
-        return confidence;
-    }
-    
-    public void setConfidence(Double confidence) {
-        this.confidence = confidence;
-    }
-    
-    @Override
-    public String toString() {
-        return "CardInfo{" +
-                "cardType=" + cardType +
-                ", confidence=" + confidence +
-                '}';
-    }
 }

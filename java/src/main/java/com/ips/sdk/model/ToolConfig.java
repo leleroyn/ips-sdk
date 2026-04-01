@@ -1,10 +1,18 @@
 package com.ips.sdk.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 工具配置
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ToolConfig {
     
     /**
@@ -24,55 +32,4 @@ public class ToolConfig {
      */
     @JsonProperty("back_ground")
     private Boolean backGround;
-    
-    // 构造方法
-    public ToolConfig() {
-    }
-    
-    public ToolConfig(Double initConfidence, Boolean resize, Boolean backGround) {
-        this.initConfidence = initConfidence;
-        this.resize = resize;
-        this.backGround = backGround;
-    }
-    
-    // Getters and Setters
-    public Double getInitConfidence() {
-        return initConfidence;
-    }
-    
-    public void setInitConfidence(Double initConfidence) {
-        this.initConfidence = initConfidence;
-    }
-    
-    public Boolean getResize() {
-        return resize;
-    }
-    
-    public void setResize(Boolean resize) {
-        this.resize = resize;
-    }
-    
-    public Boolean getBackGround() {
-        return backGround;
-    }
-    
-    public void setBackGround(Boolean backGround) {
-        this.backGround = backGround;
-    }
-    
-    // Builder方法
-    public ToolConfig withInitConfidence(double initConfidence) {
-        this.initConfidence = initConfidence;
-        return this;
-    }
-    
-    public ToolConfig withResize(boolean resize) {
-        this.resize = resize;
-        return this;
-    }
-    
-    public ToolConfig withBackGround(boolean backGround) {
-        this.backGround = backGround;
-        return this;
-    }
 }

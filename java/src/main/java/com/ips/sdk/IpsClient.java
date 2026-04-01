@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * IPS SDK 客户端
@@ -36,55 +38,48 @@ public class IpsClient {
         this(new IpsConfig());
     }
     
+    /**
+     * 执行请求并统一处理异常
+     */
+    private <T> ApiResponse<T> executeRequest(Function<String, T> parser, Supplier<HttpClient.HttpResult> requestSupplier) {
+        try {
+            HttpClient.HttpResult result = requestSupplier.get();
+            T data = parser.apply(result.getBody());
+            return ApiResponse.success(result.getStatusCode(), data);
+        } catch (IpsApiException e) {
+            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
+        } catch (IpsNetworkException e) {
+            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
+        } catch (IpsSdkException e) {
+            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
+        }
+    }
+    
     // ========== 身份证检测 ==========
     
     /**
      * 身份证预处理 (v1 - Base64)
      */
     public ApiResponse<List<IdCardResult>> idCardPreprocess(IdCardRequest request) {
-        try {
-            HttpClient.HttpResult result = httpClient.postJson("/api/v1/idcard/preprocess", request);
-            List<IdCardResult> data = httpClient.parseListResponse(result.getBody(), IdCardResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeRequest(
+            body -> httpClient.parseListResponse(body, IdCardResult.class),
+            () -> httpClient.postJson("/api/v1/idcard/preprocess", request)
+        );
     }
     
     /**
      * 身份证预处理 (v3 - 文件上传)
-     * @param inputStream 文件输入流
-     * @param fileName 文件名（带扩展名，如 "idcard.jpg"）
-     * @param params 上传参数
      */
     public ApiResponse<List<IdCardResult>> idCardPreprocessV3(InputStream inputStream, String fileName, IdCardUploadParams params) {
-        try {
-            String mimeType = HttpClient.getMimeType(fileName);
-            HttpClient.HttpResult result = httpClient.uploadStream("/api/v3/idcard/preprocess", inputStream, fileName, mimeType, params.toMap());
-            List<IdCardResult> data = httpClient.parseListResponse(result.getBody(), IdCardResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeUpload(inputStream, fileName, "/api/v3/idcard/preprocess", params.toMap(),
+            body -> httpClient.parseListResponse(body, IdCardResult.class));
     }
     
     /**
      * 身份证预处理 (v3 - 简化版，使用File)
      */
     public ApiResponse<List<IdCardResult>> idCardPreprocessV3(File file, IdCardUploadParams params) {
-        try (FileInputStream fis = new FileInputStream(file)) {
-            return idCardPreprocessV3(fis, file.getName(), params);
-        } catch (IOException e) {
-            return ApiResponse.failure(-1, "文件读取失败: " + e.getMessage(), null);
-        }
+        return withFileInputStream(file, (fis, name) -> idCardPreprocessV3(fis, name, params));
     }
     
     // ========== 营业执照检测 ==========
@@ -93,46 +88,25 @@ public class IpsClient {
      * 营业执照预处理 (v1 - Base64)
      */
     public ApiResponse<List<BizLicResult>> bizLicPreprocess(BizLicRequest request) {
-        try {
-            HttpClient.HttpResult result = httpClient.postJson("/api/v1/bizlic/preprocess", request);
-            List<BizLicResult> data = httpClient.parseListResponse(result.getBody(), BizLicResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeRequest(
+            body -> httpClient.parseListResponse(body, BizLicResult.class),
+            () -> httpClient.postJson("/api/v1/bizlic/preprocess", request)
+        );
     }
     
     /**
      * 营业执照预处理 (v3 - 文件上传)
      */
     public ApiResponse<List<BizLicResult>> bizLicPreprocessV3(InputStream inputStream, String fileName, BizLicUploadParams params) {
-        try {
-            String mimeType = HttpClient.getMimeType(fileName);
-            HttpClient.HttpResult result = httpClient.uploadStream("/api/v3/bizlic/preprocess", inputStream, fileName, mimeType, params.toMap());
-            List<BizLicResult> data = httpClient.parseListResponse(result.getBody(), BizLicResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeUpload(inputStream, fileName, "/api/v3/bizlic/preprocess", params.toMap(),
+            body -> httpClient.parseListResponse(body, BizLicResult.class));
     }
     
     /**
      * 营业执照预处理 (v3 - 简化版，使用File)
      */
     public ApiResponse<List<BizLicResult>> bizLicPreprocessV3(File file, BizLicUploadParams params) {
-        try (FileInputStream fis = new FileInputStream(file)) {
-            return bizLicPreprocessV3(fis, file.getName(), params);
-        } catch (IOException e) {
-            return ApiResponse.failure(-1, "文件读取失败: " + e.getMessage(), null);
-        }
+        return withFileInputStream(file, (fis, name) -> bizLicPreprocessV3(fis, name, params));
     }
     
     // ========== 印章检测 ==========
@@ -141,63 +115,35 @@ public class IpsClient {
      * 印章预处理 (v1 - Base64)
      */
     public ApiResponse<List<SealResult>> sealPreprocess(SealRequest request) {
-        try {
-            HttpClient.HttpResult result = httpClient.postJson("/api/v1/seal/preprocess", request);
-            List<SealResult> data = httpClient.parseListResponse(result.getBody(), SealResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeRequest(
+            body -> httpClient.parseListResponse(body, SealResult.class),
+            () -> httpClient.postJson("/api/v1/seal/preprocess", request)
+        );
     }
     
     /**
      * 印章识别 v2 (支持PDF)
      */
     public ApiResponse<List<SealResult>> sealPreprocessV2(SealRequest request) {
-        try {
-            HttpClient.HttpResult result = httpClient.postJson("/api/v2/seal/preprocess", request);
-            List<SealResult> data = httpClient.parseListResponse(result.getBody(), SealResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeRequest(
+            body -> httpClient.parseListResponse(body, SealResult.class),
+            () -> httpClient.postJson("/api/v2/seal/preprocess", request)
+        );
     }
     
     /**
      * 印章检测 v3 (文件上传)
      */
     public ApiResponse<List<SealResult>> sealPreprocessV3(InputStream inputStream, String fileName, SealUploadParams params) {
-        try {
-            String mimeType = HttpClient.getMimeType(fileName);
-            HttpClient.HttpResult result = httpClient.uploadStream("/api/v3/seal/preprocess", inputStream, fileName, mimeType, params.toMap());
-            List<SealResult> data = httpClient.parseListResponse(result.getBody(), SealResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeUpload(inputStream, fileName, "/api/v3/seal/preprocess", params.toMap(),
+            body -> httpClient.parseListResponse(body, SealResult.class));
     }
     
     /**
      * 印章检测 v3 (简化版，使用File)
      */
     public ApiResponse<List<SealResult>> sealPreprocessV3(File file, SealUploadParams params) {
-        try (FileInputStream fis = new FileInputStream(file)) {
-            return sealPreprocessV3(fis, file.getName(), params);
-        } catch (IOException e) {
-            return ApiResponse.failure(-1, "文件读取失败: " + e.getMessage(), null);
-        }
+        return withFileInputStream(file, (fis, name) -> sealPreprocessV3(fis, name, params));
     }
     
     // ========== 通用证件检测 ==========
@@ -206,48 +152,27 @@ public class IpsClient {
      * 通用证件检测 (v2 - Base64)
      */
     public ApiResponse<CardResult> cardDetection(CardRequest request) {
-        try {
-            HttpClient.HttpResult result = httpClient.postJson("/api/v2/card/det", request);
-            CardResult data = httpClient.parseResponse(result.getBody(), CardResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeRequest(
+            body -> httpClient.parseResponse(body, CardResult.class),
+            () -> httpClient.postJson("/api/v2/card/det", request)
+        );
     }
     
     /**
      * 通用证件检测 (v3 - 文件上传)
      */
     public ApiResponse<CardResult> cardDetectionV3(InputStream inputStream, String fileName, boolean returnCorpImage) {
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("return_corp_image", returnCorpImage);
-            String mimeType = HttpClient.getMimeType(fileName);
-            HttpClient.HttpResult result = httpClient.uploadStream("/api/v3/card/det", inputStream, fileName, mimeType, params);
-            CardResult data = httpClient.parseResponse(result.getBody(), CardResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("return_corp_image", returnCorpImage);
+        return executeUpload(inputStream, fileName, "/api/v3/card/det", params,
+            body -> httpClient.parseResponse(body, CardResult.class));
     }
     
     /**
      * 通用证件检测 (v3 - 简化版，使用File)
      */
     public ApiResponse<CardResult> cardDetectionV3(File file, boolean returnCorpImage) {
-        try (FileInputStream fis = new FileInputStream(file)) {
-            return cardDetectionV3(fis, file.getName(), returnCorpImage);
-        } catch (IOException e) {
-            return ApiResponse.failure(-1, "文件读取失败: " + e.getMessage(), null);
-        }
+        return withFileInputStream(file, (fis, name) -> cardDetectionV3(fis, name, returnCorpImage));
     }
     
     // ========== OCR 识别 ==========
@@ -256,46 +181,25 @@ public class IpsClient {
      * 通用OCR识别 v2 (支持PDF)
      */
     public ApiResponse<List<OcrResult>> ocrPreprocessV2(OcrRequest request) {
-        try {
-            HttpClient.HttpResult result = httpClient.postJson("/api/v2/ocr/preprocess", request);
-            List<OcrResult> data = httpClient.parseListResponse(result.getBody(), OcrResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeRequest(
+            body -> httpClient.parseListResponse(body, OcrResult.class),
+            () -> httpClient.postJson("/api/v2/ocr/preprocess", request)
+        );
     }
     
     /**
      * OCR识别 v3 (文件上传)
      */
     public ApiResponse<OcrResult> ocrPreprocessV3(InputStream inputStream, String fileName, OcrUploadParams params) {
-        try {
-            String mimeType = HttpClient.getMimeType(fileName);
-            HttpClient.HttpResult result = httpClient.uploadStream("/api/v3/ocr/preprocess", inputStream, fileName, mimeType, params.toMap());
-            OcrResult data = httpClient.parseResponse(result.getBody(), OcrResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeUpload(inputStream, fileName, "/api/v3/ocr/preprocess", params.toMap(),
+            body -> httpClient.parseResponse(body, OcrResult.class));
     }
     
     /**
      * OCR识别 v3 (简化版，使用File)
      */
     public ApiResponse<OcrResult> ocrPreprocessV3(File file, OcrUploadParams params) {
-        try (FileInputStream fis = new FileInputStream(file)) {
-            return ocrPreprocessV3(fis, file.getName(), params);
-        } catch (IOException e) {
-            return ApiResponse.failure(-1, "文件读取失败: " + e.getMessage(), null);
-        }
+        return withFileInputStream(file, (fis, name) -> ocrPreprocessV3(fis, name, params));
     }
     
     // ========== 发票识别 ==========
@@ -304,46 +208,25 @@ public class IpsClient {
      * 发票识别 v2 (支持PDF)
      */
     public ApiResponse<List<InvoiceResult>> invoicePreprocessV2(InvoiceRequest request) {
-        try {
-            HttpClient.HttpResult result = httpClient.postJson("/api/v2/invoice/preprocess", request);
-            List<InvoiceResult> data = httpClient.parseListResponse(result.getBody(), InvoiceResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeRequest(
+            body -> httpClient.parseListResponse(body, InvoiceResult.class),
+            () -> httpClient.postJson("/api/v2/invoice/preprocess", request)
+        );
     }
     
     /**
      * 发票识别 v3 (文件上传)
      */
     public ApiResponse<List<InvoiceResult>> invoicePreprocessV3(InputStream inputStream, String fileName, InvoiceUploadParams params) {
-        try {
-            String mimeType = HttpClient.getMimeType(fileName);
-            HttpClient.HttpResult result = httpClient.uploadStream("/api/v3/invoice/preprocess", inputStream, fileName, mimeType, params.toMap());
-            List<InvoiceResult> data = httpClient.parseListResponse(result.getBody(), InvoiceResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
-        }
+        return executeUpload(inputStream, fileName, "/api/v3/invoice/preprocess", params.toMap(),
+            body -> httpClient.parseListResponse(body, InvoiceResult.class));
     }
     
     /**
      * 发票识别 v3 (简化版，使用File)
      */
     public ApiResponse<List<InvoiceResult>> invoicePreprocessV3(File file, InvoiceUploadParams params) {
-        try (FileInputStream fis = new FileInputStream(file)) {
-            return invoicePreprocessV3(fis, file.getName(), params);
-        } catch (IOException e) {
-            return ApiResponse.failure(-1, "文件读取失败: " + e.getMessage(), null);
-        }
+        return withFileInputStream(file, (fis, name) -> invoicePreprocessV3(fis, name, params));
     }
     
     // ========== 手印检测 ==========
@@ -352,33 +235,19 @@ public class IpsClient {
      * 手印检测 v2 (文件上传)
      */
     public ApiResponse<HandprintResult> handprintDetectV2(InputStream inputStream, String fileName, String position) {
-        try {
-            Map<String, Object> params = new HashMap<>();
-            if (position != null) {
-                params.put("position", position);
-            }
-            String mimeType = HttpClient.getMimeType(fileName);
-            HttpClient.HttpResult result = httpClient.uploadStream("/api/v2/handprint/detect", inputStream, fileName, mimeType, params);
-            HandprintResult data = httpClient.parseResponse(result.getBody(), HandprintResult.class);
-            return ApiResponse.success(result.getStatusCode(), data);
-        } catch (IpsApiException e) {
-            return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
-        } catch (IpsNetworkException e) {
-            return ApiResponse.failure(0, "网络错误: " + e.getMessage(), null);
-        } catch (IpsSdkException e) {
-            return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
+        Map<String, Object> params = new HashMap<>();
+        if (position != null) {
+            params.put("position", position);
         }
+        return executeUpload(inputStream, fileName, "/api/v2/handprint/detect", params,
+            body -> httpClient.parseResponse(body, HandprintResult.class));
     }
     
     /**
      * 手印检测 v2 (简化版，使用File)
      */
     public ApiResponse<HandprintResult> handprintDetectV2(File file, String position) {
-        try (FileInputStream fis = new FileInputStream(file)) {
-            return handprintDetectV2(fis, file.getName(), position);
-        } catch (IOException e) {
-            return ApiResponse.failure(-1, "文件读取失败: " + e.getMessage(), null);
-        }
+        return withFileInputStream(file, (fis, name) -> handprintDetectV2(fis, name, position));
     }
     
     // ========== 健康检查 ==========
@@ -387,9 +256,23 @@ public class IpsClient {
      * 健康检查
      */
     public ApiResponse<HealthStatus> healthCheck() {
+        return executeRequest(
+            body -> httpClient.parseResponse(body, HealthStatus.class),
+            () -> httpClient.get("/health")
+        );
+    }
+    
+    // ========== 辅助方法 ==========
+    
+    /**
+     * 执行文件上传请求
+     */
+    private <T> ApiResponse<T> executeUpload(InputStream inputStream, String fileName, String path, 
+                                            Map<String, Object> params, Function<String, T> parser) {
         try {
-            HttpClient.HttpResult result = httpClient.get("/health");
-            HealthStatus data = httpClient.parseResponse(result.getBody(), HealthStatus.class);
+            String mimeType = HttpClient.getMimeType(fileName);
+            HttpClient.HttpResult result = httpClient.uploadStream(path, inputStream, fileName, mimeType, params);
+            T data = parser.apply(result.getBody());
             return ApiResponse.success(result.getStatusCode(), data);
         } catch (IpsApiException e) {
             return ApiResponse.failure(e.getStatusCode(), e.getMessage(), e.getResponseBody());
@@ -398,6 +281,22 @@ public class IpsClient {
         } catch (IpsSdkException e) {
             return ApiResponse.failure(-1, "SDK错误: " + e.getMessage(), null);
         }
+    }
+    
+    /**
+     * 使用FileInputStream执行操作，自动管理资源
+     */
+    private <T> ApiResponse<T> withFileInputStream(File file, FileInputStreamFunction<T> function) {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            return function.apply(fis, file.getName());
+        } catch (IOException e) {
+            return ApiResponse.failure(-1, "文件读取失败: " + e.getMessage(), null);
+        }
+    }
+    
+    @FunctionalInterface
+    private interface FileInputStreamFunction<T> {
+        ApiResponse<T> apply(InputStream inputStream, String fileName) throws IOException;
     }
     
     // ========== 关闭客户端 ==========

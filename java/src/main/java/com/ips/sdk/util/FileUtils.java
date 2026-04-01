@@ -2,11 +2,18 @@ package com.ips.sdk.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 文件工具类
  */
 public class FileUtils {
+    
+    private static final Set<String> IMAGE_EXTENSIONS = new HashSet<>(Arrays.asList(
+            "jpg", "jpeg", "png", "gif", "bmp", "webp"
+    ));
     
     /**
      * 获取文件扩展名
@@ -42,9 +49,8 @@ public class FileUtils {
      * @return 是否为图像文件
      */
     public static boolean isImage(String filename) {
-        String ext = getExtension(filename).toLowerCase();
-        return ext.equals("jpg") || ext.equals("jpeg") || ext.equals("png") 
-                || ext.equals("gif") || ext.equals("bmp") || ext.equals("webp");
+        String ext = getExtension(filename);
+        return ext != null && IMAGE_EXTENSIONS.contains(ext.toLowerCase());
     }
     
     /**

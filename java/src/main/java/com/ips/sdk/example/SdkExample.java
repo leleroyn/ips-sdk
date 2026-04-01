@@ -52,9 +52,10 @@ public class SdkExample {
     static void idCardExample(IpsClient client) {
         // 方式一：使用 InputStream（通用）
         try (InputStream is = new FileInputStream("idcard.jpg")) {
-            IdCardUploadParams params = new IdCardUploadParams()
-                    .withReturnCorpImage(true)
-                    .withReturnOcrText(true);
+            IdCardUploadParams params = IdCardUploadParams.builder()
+                    .returnCorpImage(true)
+                    .returnOcrText(true)
+                    .build();
             
             ApiResponse<List<IdCardResult>> response = client.idCardPreprocessV3(is, "idcard.jpg", params);
             
@@ -69,7 +70,9 @@ public class SdkExample {
         
         // 方式二：使用 File（简单）
         File file = new File("idcard.jpg");
-        IdCardUploadParams params = new IdCardUploadParams().withReturnOcrText(true);
+        IdCardUploadParams params = IdCardUploadParams.builder()
+                .returnOcrText(true)
+                .build();
         ApiResponse<List<IdCardResult>> response = client.idCardPreprocessV3(file, params);
     }
     
@@ -78,7 +81,9 @@ public class SdkExample {
      */
     static void bizLicExample(IpsClient client) {
         try (InputStream is = new FileInputStream("bizlic.jpg")) {
-            BizLicUploadParams params = new BizLicUploadParams().withReturnOcrText(true);
+            BizLicUploadParams params = BizLicUploadParams.builder()
+                    .returnOcrText(true)
+                    .build();
             ApiResponse<List<BizLicResult>> response = client.bizLicPreprocessV3(is, "bizlic.jpg", params);
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,7 +95,9 @@ public class SdkExample {
      */
     static void sealExample(IpsClient client) {
         try (InputStream is = new FileInputStream("seal.jpg")) {
-            SealUploadParams params = new SealUploadParams().withReturnSealImage(true);
+            SealUploadParams params = SealUploadParams.builder()
+                    .returnSealImage(true)
+                    .build();
             ApiResponse<List<SealResult>> response = client.sealPreprocessV3(is, "seal.jpg", params);
         } catch (Exception e) {
             e.printStackTrace();
@@ -114,16 +121,19 @@ public class SdkExample {
     static void ocrExample(IpsClient client) {
         // Base64 方式
         String imageBase64 = "..."; // 图片的Base64编码
-        OcrRequest request = new OcrRequest(imageBase64)
-                .withFileType("pdf")
-                .withReturnText(true);
+        OcrRequest request = OcrRequest.builder()
+                .imageBase64(imageBase64)
+                .fileType("pdf")
+                .returnText(true)
+                .build();
         ApiResponse<List<OcrResult>> response = client.ocrPreprocessV2(request);
         
         // 文件上传方式
         try (InputStream is = new FileInputStream("doc.pdf")) {
-            OcrUploadParams params = new OcrUploadParams()
-                    .withFormat("txt")
-                    .withUseCls(false);
+            OcrUploadParams params = OcrUploadParams.builder()
+                    .format("txt")
+                    .useCls(false)
+                    .build();
             ApiResponse<OcrResult> response2 = client.ocrPreprocessV3(is, "doc.pdf", params);
         } catch (Exception e) {
             e.printStackTrace();
@@ -135,9 +145,10 @@ public class SdkExample {
      */
     static void invoiceExample(IpsClient client) {
         try (InputStream is = new FileInputStream("invoice.pdf")) {
-            InvoiceUploadParams params = new InvoiceUploadParams()
-                    .withReturnCorpImage(true)
-                    .withReturnOcrText(false);
+            InvoiceUploadParams params = InvoiceUploadParams.builder()
+                    .returnCorpImage(true)
+                    .returnOcrText(false)
+                    .build();
             ApiResponse<List<InvoiceResult>> response = client.invoicePreprocessV3(is, "invoice.pdf", params);
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,10 +1,14 @@
 package com.ips.sdk.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 健康检查状态
  */
+@Data
+@NoArgsConstructor
 public class HealthStatus {
     
     @JsonProperty("status")
@@ -12,29 +16,4 @@ public class HealthStatus {
     
     @JsonProperty("timestamp")
     private Long timestamp;
-    
-    // Getters and Setters
-    public String getStatus() {
-        return status;
-    }
-    
-    public void setStatus(String status) {
-        this.status = status;
-    }
-    
-    public Long getTimestamp() {
-        return timestamp;
-    }
-    
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
-    }
-    
-    @Override
-    public String toString() {
-        return "HealthStatus{" +
-                "status='" + status + '\'' +
-                ", timestamp=" + timestamp +
-                '}';
-    }
 }

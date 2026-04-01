@@ -1,92 +1,33 @@
 package com.ips.sdk.model.upload;
 
+import lombok.*;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 身份证上传参数 (v3版本)
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class IdCardUploadParams {
     
+    @Builder.Default
     private Boolean returnCorpImage = true;
+    
+    @Builder.Default
     private Boolean returnOcrText = false;
+    
+    @Builder.Default
     private Double initConfidence = 0.5;
+    
+    @Builder.Default
     private Boolean resize = true;
+    
+    @Builder.Default
     private Boolean backGround = false;
     
-    public IdCardUploadParams() {
-    }
-    
-    // Getters and Setters
-    public Boolean getReturnCorpImage() {
-        return returnCorpImage;
-    }
-    
-    public void setReturnCorpImage(Boolean returnCorpImage) {
-        this.returnCorpImage = returnCorpImage;
-    }
-    
-    public Boolean getReturnOcrText() {
-        return returnOcrText;
-    }
-    
-    public void setReturnOcrText(Boolean returnOcrText) {
-        this.returnOcrText = returnOcrText;
-    }
-    
-    public Double getInitConfidence() {
-        return initConfidence;
-    }
-    
-    public void setInitConfidence(Double initConfidence) {
-        this.initConfidence = initConfidence;
-    }
-    
-    public Boolean getResize() {
-        return resize;
-    }
-    
-    public void setResize(Boolean resize) {
-        this.resize = resize;
-    }
-    
-    public Boolean getBackGround() {
-        return backGround;
-    }
-    
-    public void setBackGround(Boolean backGround) {
-        this.backGround = backGround;
-    }
-    
-    // Builder方法
-    public IdCardUploadParams withReturnCorpImage(boolean returnCorpImage) {
-        this.returnCorpImage = returnCorpImage;
-        return this;
-    }
-    
-    public IdCardUploadParams withReturnOcrText(boolean returnOcrText) {
-        this.returnOcrText = returnOcrText;
-        return this;
-    }
-    
-    public IdCardUploadParams withInitConfidence(double initConfidence) {
-        this.initConfidence = initConfidence;
-        return this;
-    }
-    
-    public IdCardUploadParams withResize(boolean resize) {
-        this.resize = resize;
-        return this;
-    }
-    
-    public IdCardUploadParams withBackGround(boolean backGround) {
-        this.backGround = backGround;
-        return this;
-    }
-    
-    /**
-     * 转换为Map
-     */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("return_corp_image", returnCorpImage);

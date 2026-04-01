@@ -1,10 +1,14 @@
 package com.ips.sdk.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 印章检测结果
  */
+@Data
+@NoArgsConstructor
 public class SealResult {
     
     @JsonProperty("seal_image_base64")
@@ -21,47 +25,4 @@ public class SealResult {
     
     @JsonProperty("ocr_result")
     private String ocrResult;
-    
-    // Getters and Setters
-    public String getSealImageBase64() {
-        return sealImageBase64;
-    }
-    
-    public void setSealImageBase64(String sealImageBase64) {
-        this.sealImageBase64 = sealImageBase64;
-    }
-    
-    public Double getConfidence() {
-        return confidence;
-    }
-    
-    public void setConfidence(Double confidence) {
-        this.confidence = confidence;
-    }
-    
-    public Integer getSealType() {
-        return sealType;
-    }
-    
-    public void setSealType(Integer sealType) {
-        this.sealType = sealType;
-    }
-    
-    public String getOcrResult() {
-        return ocrResult;
-    }
-    
-    public void setOcrResult(String ocrResult) {
-        this.ocrResult = ocrResult;
-    }
-    
-    @Override
-    public String toString() {
-        return "SealResult{" +
-                "sealType=" + sealType +
-                ", confidence=" + confidence +
-                ", hasSealImage=" + (sealImageBase64 != null) +
-                ", hasOcrResult=" + (ocrResult != null) +
-                '}';
-    }
 }

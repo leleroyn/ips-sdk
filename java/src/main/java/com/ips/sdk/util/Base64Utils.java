@@ -1,6 +1,8 @@
 package com.ips.sdk.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,6 +12,8 @@ import java.util.Base64;
  * Base64 工具类
  */
 public class Base64Utils {
+    
+    private static final int BUFFER_SIZE = 8192;
     
     /**
      * 将文件编码为Base64字符串
@@ -23,15 +27,22 @@ public class Base64Utils {
     }
     
     /**
-     * 将文件编码为Base64字符串
+     * 将文件编码为Base64字符串 (流式处理，避免大文件OOM)
      * 
      * @param path 文件路径
      * @return Base64编码字符串
      * @throws IOException 读取文件失败
      */
     public static String encodeFile(Path path) throws IOException {
-        byte[] bytes = Files.readAllBytes(path);
-        return Base64.getEncoder().encodeToString(bytes);
+        try (InputStream in = Files.newInputStream(path);
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                baos.write(buffer, 0, bytesRead);
+            }
+            return Base64.getEncoder().encodeToString(baos.toByteArray());
+        }
     }
     
     /**

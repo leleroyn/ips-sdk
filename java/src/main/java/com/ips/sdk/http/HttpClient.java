@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +26,20 @@ public class HttpClient {
     private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
     private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8");
     private static final MediaType STREAM_MEDIA_TYPE = MediaType.parse("application/octet-stream");
+    
+    /**
+     * MIME类型映射表
+     */
+    private static final Map<String, String> MIME_TYPE_MAP = new HashMap<>();
+    static {
+        MIME_TYPE_MAP.put(".jpg", "image/jpeg");
+        MIME_TYPE_MAP.put(".jpeg", "image/jpeg");
+        MIME_TYPE_MAP.put(".png", "image/png");
+        MIME_TYPE_MAP.put(".gif", "image/gif");
+        MIME_TYPE_MAP.put(".pdf", "application/pdf");
+        MIME_TYPE_MAP.put(".bmp", "image/bmp");
+        MIME_TYPE_MAP.put(".webp", "image/webp");
+    }
     
     private final String baseUrl;
     private final OkHttpClient okHttpClient;
@@ -200,19 +215,11 @@ public class HttpClient {
         if (fileName == null) {
             return "application/octet-stream";
         }
-        String ext = fileName.toLowerCase();
-        if (ext.endsWith(".jpg") || ext.endsWith(".jpeg")) {
-            return "image/jpeg";
-        } else if (ext.endsWith(".png")) {
-            return "image/png";
-        } else if (ext.endsWith(".gif")) {
-            return "image/gif";
-        } else if (ext.endsWith(".pdf")) {
-            return "application/pdf";
-        } else if (ext.endsWith(".bmp")) {
-            return "image/bmp";
-        } else if (ext.endsWith(".webp")) {
-            return "image/webp";
+        String lowerName = fileName.toLowerCase();
+        for (Map.Entry<String, String> entry : MIME_TYPE_MAP.entrySet()) {
+            if (lowerName.endsWith(entry.getKey())) {
+                return entry.getValue();
+            }
         }
         return "application/octet-stream";
     }

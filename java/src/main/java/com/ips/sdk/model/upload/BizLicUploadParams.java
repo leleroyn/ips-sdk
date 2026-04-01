@@ -1,88 +1,32 @@
 package com.ips.sdk.model.upload;
 
+import lombok.*;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 营业执照上传参数 (v3版本)
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BizLicUploadParams {
     
+    @Builder.Default
     private Boolean returnCorpImage = true;
+    
+    @Builder.Default
     private Boolean returnOcrText = false;
+    
+    @Builder.Default
     private Double initConfidence = 0.8;
+    
+    @Builder.Default
     private Boolean resize = true;
+    
+    @Builder.Default
     private Boolean backGround = false;
-    
-    public BizLicUploadParams() {
-    }
-    
-    // Getters and Setters
-    public Boolean getReturnCorpImage() {
-        return returnCorpImage;
-    }
-    
-    public void setReturnCorpImage(Boolean returnCorpImage) {
-        this.returnCorpImage = returnCorpImage;
-    }
-    
-    public Boolean getReturnOcrText() {
-        return returnOcrText;
-    }
-    
-    public void setReturnOcrText(Boolean returnOcrText) {
-        this.returnOcrText = returnOcrText;
-    }
-    
-    public Double getInitConfidence() {
-        return initConfidence;
-    }
-    
-    public void setInitConfidence(Double initConfidence) {
-        this.initConfidence = initConfidence;
-    }
-    
-    public Boolean getResize() {
-        return resize;
-    }
-    
-    public void setResize(Boolean resize) {
-        this.resize = resize;
-    }
-    
-    public Boolean getBackGround() {
-        return backGround;
-    }
-    
-    public void setBackGround(Boolean backGround) {
-        this.backGround = backGround;
-    }
-    
-    // Builder方法
-    public BizLicUploadParams withReturnCorpImage(boolean returnCorpImage) {
-        this.returnCorpImage = returnCorpImage;
-        return this;
-    }
-    
-    public BizLicUploadParams withReturnOcrText(boolean returnOcrText) {
-        this.returnOcrText = returnOcrText;
-        return this;
-    }
-    
-    public BizLicUploadParams withInitConfidence(double initConfidence) {
-        this.initConfidence = initConfidence;
-        return this;
-    }
-    
-    public BizLicUploadParams withResize(boolean resize) {
-        this.resize = resize;
-        return this;
-    }
-    
-    public BizLicUploadParams withBackGround(boolean backGround) {
-        this.backGround = backGround;
-        return this;
-    }
     
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();

@@ -1,88 +1,32 @@
 package com.ips.sdk.model.upload;
 
+import lombok.*;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 印章上传参数 (v3版本)
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SealUploadParams {
     
+    @Builder.Default
     private Boolean returnSealImage = true;
+    
+    @Builder.Default
     private Boolean returnOcrText = false;
+    
+    @Builder.Default
     private Double initConfidence = 0.5;
+    
+    @Builder.Default
     private Boolean resize = true;
+    
+    @Builder.Default
     private Boolean backGround = true;
-    
-    public SealUploadParams() {
-    }
-    
-    // Getters and Setters
-    public Boolean getReturnSealImage() {
-        return returnSealImage;
-    }
-    
-    public void setReturnSealImage(Boolean returnSealImage) {
-        this.returnSealImage = returnSealImage;
-    }
-    
-    public Boolean getReturnOcrText() {
-        return returnOcrText;
-    }
-    
-    public void setReturnOcrText(Boolean returnOcrText) {
-        this.returnOcrText = returnOcrText;
-    }
-    
-    public Double getInitConfidence() {
-        return initConfidence;
-    }
-    
-    public void setInitConfidence(Double initConfidence) {
-        this.initConfidence = initConfidence;
-    }
-    
-    public Boolean getResize() {
-        return resize;
-    }
-    
-    public void setResize(Boolean resize) {
-        this.resize = resize;
-    }
-    
-    public Boolean getBackGround() {
-        return backGround;
-    }
-    
-    public void setBackGround(Boolean backGround) {
-        this.backGround = backGround;
-    }
-    
-    // Builder方法
-    public SealUploadParams withReturnSealImage(boolean returnSealImage) {
-        this.returnSealImage = returnSealImage;
-        return this;
-    }
-    
-    public SealUploadParams withReturnOcrText(boolean returnOcrText) {
-        this.returnOcrText = returnOcrText;
-        return this;
-    }
-    
-    public SealUploadParams withInitConfidence(double initConfidence) {
-        this.initConfidence = initConfidence;
-        return this;
-    }
-    
-    public SealUploadParams withResize(boolean resize) {
-        this.resize = resize;
-        return this;
-    }
-    
-    public SealUploadParams withBackGround(boolean backGround) {
-        this.backGround = backGround;
-        return this;
-    }
     
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();

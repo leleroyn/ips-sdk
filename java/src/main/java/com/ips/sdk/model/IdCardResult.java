@@ -1,10 +1,14 @@
 package com.ips.sdk.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 身份证检测结果
  */
+@Data
+@NoArgsConstructor
 public class IdCardResult {
     
     /**
@@ -32,47 +36,4 @@ public class IdCardResult {
      */
     @JsonProperty("ocr_text")
     private String ocrText;
-    
-    // Getters and Setters
-    public String getCorpImageBase64() {
-        return corpImageBase64;
-    }
-    
-    public void setCorpImageBase64(String corpImageBase64) {
-        this.corpImageBase64 = corpImageBase64;
-    }
-    
-    public Double getConfidence() {
-        return confidence;
-    }
-    
-    public void setConfidence(Double confidence) {
-        this.confidence = confidence;
-    }
-    
-    public Integer getIdcardType() {
-        return idcardType;
-    }
-    
-    public void setIdcardType(Integer idcardType) {
-        this.idcardType = idcardType;
-    }
-    
-    public String getOcrText() {
-        return ocrText;
-    }
-    
-    public void setOcrText(String ocrText) {
-        this.ocrText = ocrText;
-    }
-    
-    @Override
-    public String toString() {
-        return "IdCardResult{" +
-                "idcardType=" + idcardType +
-                ", confidence=" + confidence +
-                ", hasCorpImage=" + (corpImageBase64 != null) +
-                ", hasOcrText=" + (ocrText != null) +
-                '}';
-    }
 }
