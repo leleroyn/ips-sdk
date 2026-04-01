@@ -1,0 +1,869 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "综合服务平台",
+    "description": "提供OCR、证件检测、印章识别等AI能力的统一接口服务",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "本地服务器"
+    }
+  ],
+  "paths": {
+    "/api/v1/idcard/preprocess": {
+      "post": {
+        "tags": ["身份证检测"],
+        "summary": "身份证预处理接口",
+        "operationId": "idcard_preprocess",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdCardRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IdCardResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bizlic/preprocess": {
+      "post": {
+        "tags": ["营业执照检测"],
+        "summary": "营业执照预处理接口",
+        "operationId": "bizlic_preprocess",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BizLicRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BizLicResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/seal/preprocess": {
+      "post": {
+        "tags": ["印章检测"],
+        "summary": "印章预处理接口",
+        "operationId": "seal_preprocess",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SealRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SealResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/card/det": {
+      "post": {
+        "tags": ["通用证件检测"],
+        "summary": "通用证件检测接口",
+        "operationId": "card_detection",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CardRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/ocr/preprocess": {
+      "post": {
+        "tags": ["通用OCR识别v2（支持PDF）"],
+        "summary": "通用OCR识别接口 v2",
+        "operationId": "ocr_v2_preprocess",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OcrRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OcrResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/seal/preprocess": {
+      "post": {
+        "tags": ["印章识别v2（支持PDF）"],
+        "summary": "印章识别接口 v2",
+        "operationId": "seal_v2_preprocess",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SealRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SealResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/invoice/preprocess": {
+      "post": {
+        "tags": ["发票识别v2（支持PDF）"],
+        "summary": "发票识别接口 v2",
+        "operationId": "invoice_v2_preprocess",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InvoiceResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/handprint/detect": {
+      "post": {
+        "tags": ["手印检测"],
+        "summary": "手印检测接口 v2",
+        "description": "检测图片或 PDF 中是否存在手印",
+        "operationId": "handprint_detect",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "图片或 PDF 文件"
+                  },
+                  "position": {
+                    "type": "string",
+                    "description": "位置信息"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HandprintResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/idcard/preprocess": {
+      "post": {
+        "tags": ["身份证检测-v3"],
+        "summary": "身份证预处理接口 v3 (UploadFile)",
+        "operationId": "idcard_preprocess_v3",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "return_corp_image": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "return_ocr_text": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "init_confidence": {
+                    "type": "number",
+                    "default": 0.5
+                  },
+                  "resize": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "back_ground": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IdCardResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/bizlic/preprocess": {
+      "post": {
+        "tags": ["营业执照检测-v3"],
+        "summary": "营业执照预处理接口 v3 (UploadFile)",
+        "operationId": "bizlic_preprocess_v3",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "return_corp_image": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "return_ocr_text": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "init_confidence": {
+                    "type": "number",
+                    "default": 0.8
+                  },
+                  "resize": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "back_ground": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BizLicResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/invoice/preprocess": {
+      "post": {
+        "tags": ["发票识别-v3"],
+        "summary": "发票识别接口 v3 (UploadFile)",
+        "operationId": "invoice_preprocess_v3",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "return_corp_image": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "return_ocr_text": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "init_confidence": {
+                    "type": "number",
+                    "default": 0.5
+                  },
+                  "resize": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "back_ground": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InvoiceResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/seal/preprocess": {
+      "post": {
+        "tags": ["印章检测-v3"],
+        "summary": "印章检测接口 v3 (UploadFile)",
+        "operationId": "seal_preprocess_v3",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "return_seal_image": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "return_ocr_text": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "init_confidence": {
+                    "type": "number",
+                    "default": 0.5
+                  },
+                  "resize": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "back_ground": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SealResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/card/det": {
+      "post": {
+        "tags": ["通用证件检测-v3"],
+        "summary": "通用证件检测接口 v3 (UploadFile)",
+        "operationId": "card_detection_v3",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "return_corp_image": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/ocr/preprocess": {
+      "post": {
+        "tags": ["通用OCR识别-v3"],
+        "summary": "OCR识别接口 v3 (UploadFile)",
+        "operationId": "ocr_preprocess_v3",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "app_id": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "resize": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "use_cls": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "format": {
+                    "type": "string",
+                    "default": "txt"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OcrResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["健康检查"],
+        "summary": "健康检查",
+        "operationId": "health_check",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ToolConfig": {
+        "type": "object",
+        "properties": {
+          "init_confidence": {
+            "type": "number"
+          },
+          "resize": {
+            "type": "boolean"
+          },
+          "back_ground": {
+            "type": "boolean"
+          }
+        }
+      },
+      "IdCardRequest": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string"
+          },
+          "return_corp_image": {
+            "type": "boolean"
+          },
+          "return_ocr_text": {
+            "type": "boolean"
+          },
+          "tool": {
+            "$ref": "#/components/schemas/ToolConfig"
+          }
+        }
+      },
+      "IdCardResult": {
+        "type": "object",
+        "properties": {
+          "corp_image_base64": {
+            "type": "string",
+            "nullable": true
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "idcard_type": {
+            "type": "integer"
+          },
+          "ocr_text": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "BizLicRequest": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string"
+          },
+          "return_corp_image": {
+            "type": "boolean"
+          },
+          "return_ocr_text": {
+            "type": "boolean"
+          },
+          "tool": {
+            "$ref": "#/components/schemas/ToolConfig"
+          }
+        }
+      },
+      "BizLicResult": {
+        "type": "object",
+        "properties": {
+          "corp_image_base64": {
+            "type": "string",
+            "nullable": true
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "bizlic_type": {
+            "type": "integer"
+          },
+          "ocr_text": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SealRequest": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string"
+          },
+          "file_type": {
+            "type": "string"
+          },
+          "return_seal_image": {
+            "type": "boolean"
+          },
+          "return_ocr_text": {
+            "type": "boolean"
+          },
+          "tool": {
+            "$ref": "#/components/schemas/ToolConfig"
+          }
+        }
+      },
+      "SealResult": {
+        "type": "object",
+        "properties": {
+          "seal_image_base64": {
+            "type": "string",
+            "nullable": true
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "seal_type": {
+            "type": "integer"
+          },
+          "ocr_result": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CardRequest": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string"
+          },
+          "return_corp_image": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CardResult": {
+        "type": "object",
+        "properties": {
+          "corp_image_base64": {
+            "type": "string",
+            "nullable": true
+          },
+          "card_info": {
+            "$ref": "#/components/schemas/CardInfo"
+          },
+          "fork": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CardInfo": {
+        "type": "object",
+        "properties": {
+          "card_type": {
+            "type": "integer"
+          },
+          "confidence": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "InvoiceRequest": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string"
+          },
+          "file_type": {
+            "type": "string"
+          },
+          "return_corp_image": {
+            "type": "boolean"
+          },
+          "return_ocr_text": {
+            "type": "boolean"
+          },
+          "tool": {
+            "$ref": "#/components/schemas/ToolConfig"
+          }
+        }
+      },
+      "InvoiceResult": {
+        "type": "object",
+        "properties": {
+          "corp_image_base64": {
+            "type": "string",
+            "nullable": true
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "invoice_type": {
+            "type": "integer"
+          },
+          "ocr_text": {
+            "type": "string",
+            "nullable": true
+          },
+          "source_text": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "OcrRequest": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string"
+          },
+          "file_type": {
+            "type": "string"
+          },
+          "return_image": {
+            "type": "boolean"
+          },
+          "return_text": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OcrResult": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string",
+            "nullable": true
+          },
+          "text": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "HandprintResult": {
+        "type": "object",
+        "properties": {
+          "has_handprint": {
+            "type": "boolean",
+            "description": "是否存在手印"
+          }
+        }
+      }
+    }
+  }
+}
