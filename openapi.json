@@ -845,13 +845,10 @@
       "OcrResult": {
         "type": "object",
         "properties": {
-          "image_base64": {
+          "ocr_text": {
             "type": "string",
-            "nullable": true
-          },
-          "text": {
-            "type": "string",
-            "nullable": true
+            "nullable": true,
+            "description": "ocr内容"
           }
         }
       },

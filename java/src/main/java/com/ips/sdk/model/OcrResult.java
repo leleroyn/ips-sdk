@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OcrResult {
     
-    @JsonProperty("image_base64")
-    private String imageBase64;
-    
-    @JsonProperty("text")
-    private String text;
+    /**
+     * OCR内容
+     */
+    @JsonProperty("ocr_text")
+    private String ocrText;
 }
