@@ -2,99 +2,91 @@
 IPS SDK Python - 请求模型
 """
 
-from typing import Optional
+from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class ToolConfig(BaseModel):
     """工具配置"""
+    model_config = ConfigDict(populate_by_name=True)
+    
     init_confidence: Optional[float] = Field(None, alias="init_confidence")
     resize: Optional[bool] = Field(None, alias="resize")
     back_ground: Optional[bool] = Field(None, alias="back_ground")
-    
-    class Config:
-        populate_by_name = True
 
 
 class IdCardRequest(BaseModel):
     """身份证检测请求"""
+    model_config = ConfigDict(populate_by_name=True)
+    
     image_base64: str = Field(..., alias="image_base64")
     return_corp_image: Optional[bool] = Field(None, alias="return_corp_image")
     return_ocr_text: Optional[bool] = Field(None, alias="return_ocr_text")
     tool: Optional[ToolConfig] = None
-    
-    class Config:
-        populate_by_name = True
 
 
 class BizLicRequest(BaseModel):
     """营业执照检测请求"""
+    model_config = ConfigDict(populate_by_name=True)
+    
     image_base64: str = Field(..., alias="image_base64")
     return_corp_image: Optional[bool] = Field(None, alias="return_corp_image")
     return_ocr_text: Optional[bool] = Field(None, alias="return_ocr_text")
     tool: Optional[ToolConfig] = None
-    
-    class Config:
-        populate_by_name = True
 
 
 class SealRequest(BaseModel):
     """印章检测请求"""
+    model_config = ConfigDict(populate_by_name=True)
+    
     image_base64: str = Field(..., alias="image_base64")
     file_type: Optional[str] = Field(None, alias="file_type")
     return_seal_image: Optional[bool] = Field(None, alias="return_seal_image")
     return_ocr_text: Optional[bool] = Field(None, alias="return_ocr_text")
     tool: Optional[ToolConfig] = None
-    
-    class Config:
-        populate_by_name = True
 
 
 class CardRequest(BaseModel):
     """通用证件检测请求"""
+    model_config = ConfigDict(populate_by_name=True)
+    
     image_base64: str = Field(..., alias="image_base64")
     return_corp_image: Optional[bool] = Field(None, alias="return_corp_image")
-    
-    class Config:
-        populate_by_name = True
 
 
 class InvoiceRequest(BaseModel):
     """发票识别请求"""
+    model_config = ConfigDict(populate_by_name=True)
+    
     image_base64: str = Field(..., alias="image_base64")
     file_type: Optional[str] = Field(None, alias="file_type")
     return_corp_image: Optional[bool] = Field(None, alias="return_corp_image")
     return_ocr_text: Optional[bool] = Field(None, alias="return_ocr_text")
     tool: Optional[ToolConfig] = None
-    
-    class Config:
-        populate_by_name = True
 
 
 class OcrRequest(BaseModel):
     """OCR识别请求"""
+    model_config = ConfigDict(populate_by_name=True)
+    
     image_base64: str = Field(..., alias="image_base64")
     file_type: Optional[str] = Field(None, alias="file_type")
     return_image: Optional[bool] = Field(None, alias="return_image")
     return_text: Optional[bool] = Field(None, alias="return_text")
-    
-    class Config:
-        populate_by_name = True
 
 
 # ===== Upload Params =====
 
 class IdCardUploadParams(BaseModel):
     """身份证上传参数 (v3)"""
-    return_corp_image: bool = Field(True, alias="return_corp_image")
-    return_ocr_text: bool = Field(False, alias="return_ocr_text")
-    init_confidence: float = Field(0.5, alias="init_confidence")
-    resize: bool = Field(True, alias="resize")
-    back_ground: bool = Field(False, alias="back_ground")
+    model_config = ConfigDict(populate_by_name=True)
     
-    class Config:
-        populate_by_name = True
+    return_corp_image: bool = True
+    return_ocr_text: bool = False
+    init_confidence: float = 0.5
+    resize: bool = True
+    back_ground: bool = False
     
     def to_dict(self) -> dict:
         return {
@@ -104,18 +96,22 @@ class IdCardUploadParams(BaseModel):
             "resize": self.resize,
             "back_ground": self.back_ground,
         }
+    
+    @classmethod
+    def builder(cls, **kwargs: Any) -> "IdCardUploadParams":
+        """Builder 模式"""
+        return cls(**kwargs)
 
 
 class BizLicUploadParams(BaseModel):
     """营业执照上传参数 (v3)"""
-    return_corp_image: bool = Field(True, alias="return_corp_image")
-    return_ocr_text: bool = Field(False, alias="return_ocr_text")
-    init_confidence: float = Field(0.8, alias="init_confidence")
-    resize: bool = Field(True, alias="resize")
-    back_ground: bool = Field(False, alias="back_ground")
+    model_config = ConfigDict(populate_by_name=True)
     
-    class Config:
-        populate_by_name = True
+    return_corp_image: bool = True
+    return_ocr_text: bool = False
+    init_confidence: float = 0.8
+    resize: bool = True
+    back_ground: bool = False
     
     def to_dict(self) -> dict:
         return {
@@ -125,18 +121,22 @@ class BizLicUploadParams(BaseModel):
             "resize": self.resize,
             "back_ground": self.back_ground,
         }
+    
+    @classmethod
+    def builder(cls, **kwargs: Any) -> "BizLicUploadParams":
+        """Builder 模式"""
+        return cls(**kwargs)
 
 
 class SealUploadParams(BaseModel):
     """印章上传参数 (v3)"""
-    return_seal_image: bool = Field(True, alias="return_seal_image")
-    return_ocr_text: bool = Field(False, alias="return_ocr_text")
-    init_confidence: float = Field(0.5, alias="init_confidence")
-    resize: bool = Field(True, alias="resize")
-    back_ground: bool = Field(True, alias="back_ground")
+    model_config = ConfigDict(populate_by_name=True)
     
-    class Config:
-        populate_by_name = True
+    return_seal_image: bool = True
+    return_ocr_text: bool = False
+    init_confidence: float = 0.5
+    resize: bool = True
+    back_ground: bool = True
     
     def to_dict(self) -> dict:
         return {
@@ -146,18 +146,22 @@ class SealUploadParams(BaseModel):
             "resize": self.resize,
             "back_ground": self.back_ground,
         }
+    
+    @classmethod
+    def builder(cls, **kwargs: Any) -> "SealUploadParams":
+        """Builder 模式"""
+        return cls(**kwargs)
 
 
 class InvoiceUploadParams(BaseModel):
     """发票上传参数 (v3)"""
-    return_corp_image: bool = Field(True, alias="return_corp_image")
-    return_ocr_text: bool = Field(False, alias="return_ocr_text")
-    init_confidence: float = Field(0.5, alias="init_confidence")
-    resize: bool = Field(True, alias="resize")
-    back_ground: bool = Field(False, alias="back_ground")
+    model_config = ConfigDict(populate_by_name=True)
     
-    class Config:
-        populate_by_name = True
+    return_corp_image: bool = True
+    return_ocr_text: bool = False
+    init_confidence: float = 0.5
+    resize: bool = True
+    back_ground: bool = False
     
     def to_dict(self) -> dict:
         return {
@@ -167,17 +171,21 @@ class InvoiceUploadParams(BaseModel):
             "resize": self.resize,
             "back_ground": self.back_ground,
         }
+    
+    @classmethod
+    def builder(cls, **kwargs: Any) -> "InvoiceUploadParams":
+        """Builder 模式"""
+        return cls(**kwargs)
 
 
 class OcrUploadParams(BaseModel):
     """OCR上传参数 (v3)"""
-    app_id: Optional[str] = Field(None, alias="app_id")
-    resize: bool = Field(True, alias="resize")
-    use_cls: bool = Field(False, alias="use_cls")
-    format: str = Field("txt", alias="format")
+    model_config = ConfigDict(populate_by_name=True)
     
-    class Config:
-        populate_by_name = True
+    app_id: Optional[str] = None
+    resize: bool = True
+    use_cls: bool = False
+    format: str = "txt"
     
     def to_dict(self) -> dict:
         result = {
@@ -188,6 +196,11 @@ class OcrUploadParams(BaseModel):
         if self.app_id is not None:
             result["app_id"] = self.app_id
         return result
+    
+    @classmethod
+    def builder(cls, **kwargs: Any) -> "OcrUploadParams":
+        """Builder 模式"""
+        return cls(**kwargs)
 
 
 class HandprintParams(BaseModel):
@@ -198,3 +211,8 @@ class HandprintParams(BaseModel):
         if self.position:
             return {"position": self.position}
         return {}
+    
+    @classmethod
+    def builder(cls, **kwargs: Any) -> "HandprintParams":
+        """Builder 模式"""
+        return cls(**kwargs)
