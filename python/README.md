@@ -26,6 +26,28 @@ if response.is_success():
         print(f"类型: {result.idcard_type}, 置信度: {result.confidence}")
 ```
 
+## Development
+
+### Build
+
+```bash
+# 构建 wheel 包
+uv build
+
+# 安装测试
+pip install dist/ips_sdk-1.0.0-py3-none-any.whl
+```
+
+### Publish
+
+```bash
+# 发布到 Test PyPI（测试）
+uv publish --repository testpypi
+
+# 发布到正式 PyPI
+uv publish
+```
+
 ## License
 
 MIT
