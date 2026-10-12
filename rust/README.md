@@ -41,7 +41,6 @@ ips <二级命令> <文件路径> [选项]
 | `ocr` | 通用 OCR | POST /api/v3/ocr/preprocess |
 | `card` | 证件检测 | POST /api/v3/card/det |
 | `handprint` | 手印检测 | POST /api/v2/handprint/detect |
-| `health` | 健康检查 | GET /health |
 
 ### 选项
 
@@ -49,6 +48,7 @@ ips <二级命令> <文件路径> [选项]
 - `--format <fmt>`: OCR 输出格式
 - `--position <pos>`: 手印检测位置
 - `--timeout <秒>`: 请求超时 (默认 30)
+- `--no-cache`: 跳过缓存强制请求服务器 (成功结果仍写入缓存)
 
 固定行为 (不暴露为参数):
 - 裁剪图一律不返回: idcard/bizlic/invoice/card 发送 `return_corp_image=false`, seal 发送 `return_seal_image=false`
@@ -72,8 +72,6 @@ ips seal photo.jpg --init-confidence 0.7
 # OCR
 ips ocr doc.pdf --format text
 
-# 健康检查
-ips health
 ```
 
 成功时输出格式化 JSON; 失败时打印错误并以非零退出码结束。
@@ -105,3 +103,12 @@ Invoke-WebRequest -Uri https://github.com/leleroyn/ips-sdk/releases/download/v1.
 $env:IPS_BASE_URL = "http://112.94.31.26:18080/ips"
 .\ips.exe idcard D:\images\idcard.jpg
 ```
+## 幂等缓存
+
+相同 命令 + 参数 + 文件内容 的调用只请求服务器一次, 重复调用直接返回缓存结果 (输出与首次完全一致):
+
+- 缓存目录: 默认 `~/.ips/cache`, 环境变量 `IPS_CACHE_DIR` 可覆盖; 手动清理即删该目录
+- 缓存键: 命令 + 接口路径 + 表单参数 + 文件身份
+  - 本地文件: 内容 SHA-256
+  - 远程 URL: URL + HEAD 请求的 ETag/Last-Modified (不下载文件; 无校验头时退化为纯 URL)
+- 永不过期; 仅成功响应入缓存; `--no-cache` 强制走服务器

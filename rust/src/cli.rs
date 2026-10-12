@@ -11,6 +11,10 @@ pub struct Cli {
     #[arg(long, global = true, default_value_t = 30.0, value_name = "SECONDS")]
     pub timeout: f64,
 
+    /// 跳过结果缓存, 强制请求服务器 (成功结果仍会写入缓存)
+    #[arg(long, global = true)]
+    pub no_cache: bool,
+
     #[command(subcommand)]
     pub command: Command,
 }
@@ -31,8 +35,6 @@ pub enum Command {
     Card(CardArgs),
     /// 手印检测
     Handprint(HandprintArgs),
-    /// 服务健康检查
-    Health,
 }
 
 #[derive(Parser)]
@@ -97,4 +99,15 @@ pub struct HandprintArgs {
     /// 位置参数
     #[arg(long, value_name = "POS")]
     pub position: Option<String>,
+}
+#[cfg(test)]
+mod tests {
+    use super::Cli;
+    use clap::Parser;
+
+    #[test]
+    fn health_command_removed() {
+        assert!(Cli::try_parse_from(["ips", "health"]).is_err());
+        assert!(Cli::try_parse_from(["ips", "idcard", "a.jpg", "--no-cache"]).is_ok());
+    }
 }
