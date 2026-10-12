@@ -8,7 +8,7 @@ Multi-language SDK for IPS Comprehensive Service Platform - OCR, Certificate Det
 |----------|---------|--------|
 | Java | 1.0.0 | ✅ Stable |
 | Python | 1.0.0 | ✅ Stable |
-| Rust CLI | 1.0.0 | ✅ Stable |
+| Rust CLI | 1.0.3 | ✅ Stable |
 
 ## Features
 
@@ -69,6 +69,27 @@ if response.is_success():
         print(f"类型: {result.idcard_type}")
 ```
 
+### Rust CLI
+
+命令名 `ips`, 二进制由 GitHub Actions 自动构建并发布: [Releases](https://github.com/leleroyn/ips-sdk/releases) (`ips` Linux x86_64 静态 / `ips.exe` Windows x86_64)。
+
+```bash
+# Linux
+curl -fsSL -o ips https://github.com/leleroyn/ips-sdk/releases/download/v1.0.3/ips
+chmod +x ips
+export IPS_BASE_URL=http://112.94.31.26:18080/ips
+
+./ips idcard idcard.jpg                 # 本地文件
+./ips idcard https://example.com/a.png  # 远程 URL
+./ips seal photo.jpg --init-confidence 0.7
+./ips ocr doc.pdf --format text
+```
+
+特性:
+- 二级命令: `idcard` / `bizlic` / `invoice` / `seal` / `ocr` / `card` / `handprint`, 固定使用最新接口版本
+- 幂等缓存: 相同命令+参数+文件内容只请求服务器一次, 重复调用直接返回缓存 (默认 `~/.ips/cache`, `IPS_CACHE_DIR` 可覆盖, `--no-cache` 强制刷新)
+- 裁剪图与 OCR 文本固定不返回, 输出为格式化 JSON
+
 ## Project Structure
 
 ```
@@ -98,6 +119,16 @@ uv build                    # Build wheel
 uv pip install -e .         # Development install
 uv run pytest tests/        # Run tests
 ```
+
+### Rust CLI
+
+```bash
+cd rust
+cargo build --release       # 产物: target/release/ips(.exe)
+cargo test --release        # 单元测试
+```
+
+> Windows 本机用 GNU 工具链时, 若源码在中文路径, 需设置纯 ASCII 的 `CARGO_TARGET_DIR`。
 
 ## License
 
