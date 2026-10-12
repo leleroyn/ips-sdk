@@ -1,6 +1,6 @@
 [package]
 name = "ips-cli"
-version = "1.0.0"
+version = "1.0.2"
 edition = "2021"
 description = "IPS 综合服务平台命令行工具"
 license = "MIT"
