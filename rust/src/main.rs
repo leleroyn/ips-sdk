@@ -20,7 +20,7 @@ async fn main() -> ExitCode {
 
 async fn run() -> Result<()> {
     let cli = Cli::parse();
-    let base_url = resolve_base_url(&cli)?;
+    let base_url = resolve_base_url()?;
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs_f64(cli.timeout))
         .build()
@@ -48,14 +48,10 @@ async fn run() -> Result<()> {
     }
 }
 
-fn resolve_base_url(cli: &Cli) -> Result<String> {
-    let raw = match (&cli.base_url, std::env::var("IPS_BASE_URL")) {
-        (Some(u), _) => u.clone(),
-        (None, Ok(u)) => u,
-        (None, Err(_)) => bail!(
-            "环境变量 IPS_BASE_URL 未设置, 请先设置 (PowerShell: $env:IPS_BASE_URL=\"http://localhost:8000\") 或使用 --base-url 参数"
-        ),
-    };
+fn resolve_base_url() -> Result<String> {
+    let raw = std::env::var("IPS_BASE_URL").map_err(|_| {
+        anyhow::anyhow!("环境变量 IPS_BASE_URL 未设置, 请先设置 (PowerShell: $env:IPS_BASE_URL=\"http://localhost:8000\"; Linux: export IPS_BASE_URL=http://localhost:8000)")
+    })?;
     let trimmed = raw.trim().trim_end_matches('/').to_string();
     if !(trimmed.starts_with("http://") || trimmed.starts_with("https://")) {
         bail!("IPS_BASE_URL 无效: {raw} (必须以 http:// 或 https:// 开头)");

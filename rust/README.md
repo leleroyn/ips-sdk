@@ -16,13 +16,11 @@ cargo build --release
 
 ## 配置
 
-接口基础地址由环境变量 `IPS_BASE_URL` 提供:
+接口基础地址仅由环境变量 `IPS_BASE_URL` 提供:
 
 ```powershell
 $env:IPS_BASE_URL = "http://localhost:8000"
 ```
-
-也可用全局参数 `--base-url` 临时覆盖。
 
 ## 用法
 
@@ -45,21 +43,17 @@ ips <二级命令> <文件路径> [选项]
 | `handprint` | 手印检测 | POST /api/v2/handprint/detect |
 | `health` | 健康检查 | GET /health |
 
-### 常用选项
+### 选项
 
-- `--return-ocr-text` / `--no-return-ocr-text`: 是否返回 OCR 文本
-- `--init-confidence <float>`: 初始置信度
-- `--resize` / `--no-resize`: 自动缩放
-- `--back-ground` / `--no-back-ground`: 背景增强
-- `--app-id <id>` / `--use-cls` / `--format <fmt>`: OCR 专属
+- `--init-confidence <float>`: 初始置信度 (idcard/bizlic/invoice/seal)
+- `--format <fmt>`: OCR 输出格式
 - `--position <pos>`: 手印检测位置
 - `--timeout <秒>`: 请求超时 (默认 30)
-- `--base-url <url>`: 覆盖 IPS_BASE_URL
 
-未显式指定的参数不发送, 由服务端默认值决定。
-
-裁剪图一律不返回: CLI 对 idcard/bizlic/invoice/card 固定发送 `return_corp_image=false`,
-对 seal 固定发送 `return_seal_image=false`。
+固定行为 (不暴露为参数):
+- 裁剪图一律不返回: idcard/bizlic/invoice/card 发送 `return_corp_image=false`, seal 发送 `return_seal_image=false`
+- OCR 文本一律不返回: idcard/bizlic/invoice/seal 发送 `return_ocr_text=false`
+- 其余参数不发送, 由服务端默认值决定
 
 ### 示例
 
@@ -70,13 +64,13 @@ $env:IPS_BASE_URL = "http://localhost:8000"
 ips idcard D:\images\idcard.jpg
 
 # 远程 URL
-ips idcard https://example.com/idcard.png --return-ocr-text
+ips idcard https://example.com/idcard.png
 
-# 印章识别
-ips seal photo.jpg --return-seal-image --init-confidence 0.7
+# 指定置信度阈值
+ips seal photo.jpg --init-confidence 0.7
 
 # OCR
-ips ocr doc.pdf --app-id myapp --format text
+ips ocr doc.pdf --format text
 
 # 健康检查
 ips health
@@ -89,6 +83,7 @@ ips health
 ```powershell
 cargo test --release
 ```
+
 ## Linux 安装 (GitHub Actions)
 
 推送 `rust/**` 变更或打 `v*` 标签会触发 `.github/workflows/build-linux-cli.yml`,
@@ -98,8 +93,8 @@ cargo test --release
 - 正式发布: [Releases](https://github.com/leleroyn/ips-sdk/releases) 中的 `ips`
 
 ```bash
-curl -fsSL -o ips https://github.com/leleroyn/ips-sdk/releases/download/v1.0.0/ips
+curl -fsSL -o ips https://github.com/leleroyn/ips-sdk/releases/download/v1.0.1/ips
 chmod +x ips
 export IPS_BASE_URL=http://112.94.31.26:18080/ips
-./ips idcard /path/to/idcard.jpg --return-ocr-text
+./ips idcard /path/to/idcard.jpg
 ```

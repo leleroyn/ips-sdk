@@ -1,17 +1,9 @@
-use crate::cli::{
-    tri, BizlicArgs, CardArgs, HandprintArgs, IdcardArgs, InvoiceArgs, OcrArgs, SealArgs,
-};
+use crate::cli::{BizlicArgs, CardArgs, HandprintArgs, IdcardArgs, InvoiceArgs, OcrArgs, SealArgs};
 use anyhow::Result;
 
 pub struct ApiRequest {
     pub path: String,
     pub fields: Vec<(String, String)>,
-}
-
-fn add_bool(fields: &mut Vec<(String, String)>, name: &str, value: Option<bool>) {
-    if let Some(v) = value {
-        fields.push((name.to_string(), v.to_string()));
-    }
 }
 
 fn add_confidence(fields: &mut Vec<(String, String)>, value: Option<f64>) {
@@ -20,62 +12,43 @@ fn add_confidence(fields: &mut Vec<(String, String)>, value: Option<f64>) {
     }
 }
 
-/// 裁剪图一律不返回 (服务端默认 true, 必须显式关闭)
-fn no_corp_image(fields: &mut Vec<(String, String)>) {
+/// 裁剪图与 OCR 文本一律不返回 (服务端默认 true, 必须显式关闭)
+fn no_image_no_text(fields: &mut Vec<(String, String)>) {
     fields.push(("return_corp_image".into(), "false".into()));
-}
-
-fn no_seal_image(fields: &mut Vec<(String, String)>) {
-    fields.push(("return_seal_image".into(), "false".into()));
+    fields.push(("return_ocr_text".into(), "false".into()));
 }
 
 pub fn idcard(args: &IdcardArgs) -> Result<ApiRequest> {
     let mut fields = Vec::new();
-    no_corp_image(&mut fields);
-    add_bool(&mut fields, "return_ocr_text", tri(args.return_ocr_text, args.no_return_ocr_text, "return-ocr-text")?);
-    add_bool(&mut fields, "resize", tri(args.resize, args.no_resize, "resize")?);
-    add_bool(&mut fields, "back_ground", tri(args.back_ground, args.no_back_ground, "back-ground")?);
+    no_image_no_text(&mut fields);
     add_confidence(&mut fields, args.init_confidence);
     Ok(ApiRequest { path: "/api/v3/idcard/preprocess".into(), fields })
 }
 
 pub fn bizlic(args: &BizlicArgs) -> Result<ApiRequest> {
     let mut fields = Vec::new();
-    no_corp_image(&mut fields);
-    add_bool(&mut fields, "return_ocr_text", tri(args.return_ocr_text, args.no_return_ocr_text, "return-ocr-text")?);
-    add_bool(&mut fields, "resize", tri(args.resize, args.no_resize, "resize")?);
-    add_bool(&mut fields, "back_ground", tri(args.back_ground, args.no_back_ground, "back-ground")?);
+    no_image_no_text(&mut fields);
     add_confidence(&mut fields, args.init_confidence);
     Ok(ApiRequest { path: "/api/v3/bizlic/preprocess".into(), fields })
 }
 
 pub fn invoice(args: &InvoiceArgs) -> Result<ApiRequest> {
     let mut fields = Vec::new();
-    no_corp_image(&mut fields);
-    add_bool(&mut fields, "return_ocr_text", tri(args.return_ocr_text, args.no_return_ocr_text, "return-ocr-text")?);
-    add_bool(&mut fields, "resize", tri(args.resize, args.no_resize, "resize")?);
-    add_bool(&mut fields, "back_ground", tri(args.back_ground, args.no_back_ground, "back-ground")?);
+    no_image_no_text(&mut fields);
     add_confidence(&mut fields, args.init_confidence);
     Ok(ApiRequest { path: "/api/v3/invoice/preprocess".into(), fields })
 }
 
 pub fn seal(args: &SealArgs) -> Result<ApiRequest> {
     let mut fields = Vec::new();
-    no_seal_image(&mut fields);
-    add_bool(&mut fields, "return_ocr_text", tri(args.return_ocr_text, args.no_return_ocr_text, "return-ocr-text")?);
-    add_bool(&mut fields, "resize", tri(args.resize, args.no_resize, "resize")?);
-    add_bool(&mut fields, "back_ground", tri(args.back_ground, args.no_back_ground, "back-ground")?);
+    fields.push(("return_seal_image".into(), "false".into()));
+    fields.push(("return_ocr_text".into(), "false".into()));
     add_confidence(&mut fields, args.init_confidence);
     Ok(ApiRequest { path: "/api/v3/seal/preprocess".into(), fields })
 }
 
 pub fn ocr(args: &OcrArgs) -> Result<ApiRequest> {
     let mut fields = Vec::new();
-    add_bool(&mut fields, "resize", tri(args.resize, args.no_resize, "resize")?);
-    add_bool(&mut fields, "use_cls", tri(args.use_cls, args.no_use_cls, "use-cls")?);
-    if let Some(id) = &args.app_id {
-        fields.push(("app_id".into(), id.clone()));
-    }
     if let Some(f) = &args.format {
         fields.push(("format".into(), f.clone()));
     }
@@ -84,7 +57,7 @@ pub fn ocr(args: &OcrArgs) -> Result<ApiRequest> {
 
 pub fn card(_args: &CardArgs) -> Result<ApiRequest> {
     let mut fields = Vec::new();
-    no_corp_image(&mut fields);
+    fields.push(("return_corp_image".into(), "false".into()));
     Ok(ApiRequest { path: "/api/v3/card/det".into(), fields })
 }
 
@@ -114,28 +87,34 @@ mod tests {
     }
 
     #[test]
-    fn corp_image_always_disabled() {
+    fn images_and_text_always_disabled() {
         let args = IdcardArgs::try_parse_from(["idcard", "a.jpg"]).unwrap();
-        assert!(idcard(&args).unwrap().fields.contains(&("return_corp_image".to_string(), "false".to_string())));
+        let f = idcard(&args).unwrap().fields;
+        assert!(f.contains(&("return_corp_image".to_string(), "false".to_string())));
+        assert!(f.contains(&("return_ocr_text".to_string(), "false".to_string())));
 
         let args = SealArgs::try_parse_from(["seal", "a.jpg"]).unwrap();
-        assert!(seal(&args).unwrap().fields.contains(&("return_seal_image".to_string(), "false".to_string())));
+        let f = seal(&args).unwrap().fields;
+        assert!(f.contains(&("return_seal_image".to_string(), "false".to_string())));
+        assert!(f.contains(&("return_ocr_text".to_string(), "false".to_string())));
 
         let args = CardArgs::try_parse_from(["card", "a.jpg"]).unwrap();
         assert!(card(&args).unwrap().fields.contains(&("return_corp_image".to_string(), "false".to_string())));
     }
 
     #[test]
-    fn fields_only_include_explicit_flags() {
-        let args = IdcardArgs::try_parse_from(["idcard", "a.jpg", "--return-ocr-text", "--init-confidence", "0.7"]).unwrap();
-        let req = idcard(&args).unwrap();
+    fn only_explicit_optional_fields_sent() {
+        let args = IdcardArgs::try_parse_from(["idcard", "a.jpg", "--init-confidence", "0.7"]).unwrap();
         assert_eq!(
-            req.fields,
+            idcard(&args).unwrap().fields,
             vec![
                 ("return_corp_image".to_string(), "false".to_string()),
-                ("return_ocr_text".to_string(), "true".to_string()),
+                ("return_ocr_text".to_string(), "false".to_string()),
                 ("init_confidence".to_string(), "0.7".to_string()),
             ]
         );
+
+        let args = OcrArgs::try_parse_from(["ocr", "a.jpg"]).unwrap();
+        assert!(ocr(&args).unwrap().fields.is_empty());
     }
 }
