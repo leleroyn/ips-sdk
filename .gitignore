@@ -1,0 +1,8 @@
+/python/.venv
+/python/dist
+/python/.pytest_cache
+/.workbuddy
+/java/target
+/java/.idea
+
+__pycache__/
