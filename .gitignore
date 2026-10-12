@@ -6,3 +6,4 @@
 /java/.idea
 
 __pycache__/
+/rust/target

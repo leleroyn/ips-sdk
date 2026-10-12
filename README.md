@@ -8,6 +8,7 @@ Multi-language SDK for IPS Comprehensive Service Platform - OCR, Certificate Det
 |----------|---------|--------|
 | Java | 1.0.0 | ✅ Stable |
 | Python | 1.0.0 | ✅ Stable |
+| Rust CLI | 1.0.0 | ✅ Stable |
 
 ## Features
 
@@ -74,6 +75,7 @@ if response.is_success():
 ips-sdk/
 ├── java/              # Java SDK (Maven)
 ├── python/             # Python SDK (uv)
+├── rust/               # Rust CLI (cargo)
 ├── openapi.json        # OpenAPI Specification
 └── README.md
 ```

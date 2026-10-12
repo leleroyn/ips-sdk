@@ -1,0 +1,17 @@
+[package]
+name = "ips-cli"
+version = "1.0.0"
+edition = "2021"
+description = "IPS 综合服务平台命令行工具"
+license = "MIT"
+
+[[bin]]
+name = "ips"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+reqwest = { version = "0.12", default-features = false, features = ["multipart", "json", "rustls-tls"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
