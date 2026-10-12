@@ -89,3 +89,17 @@ ips health
 ```powershell
 cargo test --release
 ```
+## Linux 安装 (GitHub Actions)
+
+推送 `rust/**` 变更或打 `v*` 标签会触发 `.github/workflows/build-linux-cli.yml`,
+产出 **x86_64 musl 静态链接** 二进制(任意发行版可直接运行, 无 glibc/OpenSSL 依赖):
+
+- 最新构建: Actions 页面 artifact `ips-linux-x86_64`
+- 正式发布: [Releases](https://github.com/leleroyn/ips-sdk/releases) 中的 `ips`
+
+```bash
+curl -fsSL -o ips https://github.com/leleroyn/ips-sdk/releases/download/v1.0.0/ips
+chmod +x ips
+export IPS_BASE_URL=http://112.94.31.26:18080/ips
+./ips idcard /path/to/idcard.jpg --return-ocr-text
+```
