@@ -88,7 +88,7 @@ export IPS_BASE_URL=http://112.94.31.26:18080/ips
 特性:
 - 二级命令: `idcard` / `bizlic` / `invoice` / `seal` / `ocr` / `card` / `handprint`, 固定使用最新接口版本
 - 幂等缓存: 相同命令+参数+文件内容只请求服务器一次, 重复调用直接返回缓存 (默认 `~/.ips/cache`, `IPS_CACHE_DIR` 可覆盖, `--no-cache` 强制刷新)
-- 裁剪图与 OCR 文本固定不返回, 输出为格式化 JSON
+- 裁剪图固定不返回, OCR 文本固定返回 (idcard/bizlic/invoice/seal), 输出为格式化 JSON
 
 ## Project Structure
 

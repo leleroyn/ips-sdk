@@ -52,7 +52,7 @@ ips <二级命令> <文件路径> [选项]
 
 固定行为 (不暴露为参数):
 - 裁剪图一律不返回: idcard/bizlic/invoice/card 发送 `return_corp_image=false`, seal 发送 `return_seal_image=false`
-- OCR 文本一律不返回: idcard/bizlic/invoice/seal 发送 `return_ocr_text=false`
+- OCR 文本固定返回: idcard/bizlic/invoice/seal 发送 `return_ocr_text=true`
 - 其余参数不发送, 由服务端默认值决定
 
 ### 示例
