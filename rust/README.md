@@ -47,7 +47,7 @@ ips <二级命令> <文件路径> [选项]
 - `--init-confidence <float>`: 初始置信度 (idcard/bizlic/invoice/seal)
 - `--format <fmt>`: OCR 输出格式
 - `--position <pos>`: 手印检测位置
-- `--timeout <秒>`: 请求超时 (默认 30)
+- `--timeout <秒>`: 请求超时 (默认 180)
 - `--no-cache`: 跳过缓存强制请求服务器 (成功结果仍写入缓存)
 
 固定行为 (不暴露为参数):

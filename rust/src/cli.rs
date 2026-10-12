@@ -8,7 +8,7 @@ use clap::{Parser, Subcommand};
 )]
 pub struct Cli {
     /// 请求超时时间 (秒)
-    #[arg(long, global = true, default_value_t = 30.0, value_name = "SECONDS")]
+    #[arg(long, global = true, default_value_t = 180.0, value_name = "SECONDS")]
     pub timeout: f64,
 
     /// 跳过结果缓存, 强制请求服务器 (成功结果仍会写入缓存)
